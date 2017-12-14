@@ -10,7 +10,7 @@ use Magento\Framework\App\RouterInterface;
 use Magento\Framework\App\ActionFactory;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\App\RequestInterface;
-use Magento\Framework\ObjectManagerInterface;
+use Magento\Catalog\Model\ProductFactory;
 
 /**
  * Product Sku Router
@@ -18,11 +18,11 @@ use Magento\Framework\ObjectManagerInterface;
 class Router implements RouterInterface
 {
     /**
-     * Object Manager
+     * Product Factory
      *
-     * @var \Magento\Framework\ObjectManagerInterface
-     */
-    protected $_objectManager;
+     * @var \Magento\Catalog\Model\ProductFactory
+     */	
+	protected $_productFactory;
 	
     /**
      * Action Factory
@@ -32,7 +32,7 @@ class Router implements RouterInterface
     protected $_actionFactory;
 	
     /**
-     * Response Interface
+     * Response
      *
      * @var \Magento\Framework\App\ResponseInterface
      */
@@ -43,16 +43,16 @@ class Router implements RouterInterface
      *
      * @param ActionFactory $actionFactory
      * @param ResponseInterface $response
-	 * @param ObjectManagerInterface $objectManager 	 
+	 * @param ProductFactory $productFactory 	 
      */
     public function __construct(
         ActionFactory $actionFactory,
         ResponseInterface $response,
-		ObjectManagerInterface $objectManager
+		ProductFactory $productFactory
     ) {
         $this->_actionFactory = $actionFactory;
         $this->_response = $response;
-		$this->_objectManager = $objectManager;
+		$this->_productFactory = $productFactory;
     }
 	
     /**
@@ -63,25 +63,54 @@ class Router implements RouterInterface
      */
     public function match(RequestInterface $request)
     {
-        $identifier = trim($request->getPathInfo(), '/');		
-		$product = $this->_objectManager->get('Magento\Catalog\Model\Product')
-			->loadByAttribute('sku', $identifier);
-			
-		if (!$product || !$product->getId()) {
-			return false;
-		}
-		
+        $identifier = trim($request->getPathInfo(), '/');
+		$productId = $this->_getIdBySku($identifier);
+		if ($productId) {
+			$this->_setRequestParam($request, $productId);
+			return $this->_getActionForward($request);				
+		}		
+		return false;
+    }
+	
+    /**
+     * Initialize Request Param
+     *
+     * @param RequestInterface $request
+     * @param integer $productId	 
+     * @return void
+     */
+    protected function _setRequestParam($request, $productId)
+    {
 		$request
 			->setModuleName('catalog')
 			->setControllerName('product')
 			->setActionName('view')
-			->setParam('id', $product->getId());
-        /*
-         * We have match and now we will forward action
-         */
+			->setParam('id', $productId);
+    }
+	
+    /**
+     * Retrieve Action Forward
+     *
+     * @param RequestInterface $request
+     * @return \Magento\Framework\App\Action\Forward
+     */
+    protected function _getActionForward($request)
+    {
         return $this->_actionFactory->create(
             'Magento\Framework\App\Action\Forward',
             ['request' => $request]
         );
     }
+	
+    /**
+     * Retrieve Product Id By Sku
+     *
+     * @param string $sku
+     * @return integer
+     */
+    protected function _getIdBySku($sku)
+    {
+        return $this->_productFactory->create()
+			->getIdBySku($sku);
+    }	
 }
