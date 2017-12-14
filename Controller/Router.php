@@ -13,35 +13,37 @@ use Magento\Framework\App\RequestInterface;
 use Magento\Framework\ObjectManagerInterface;
 
 /**
- * ProductSkuRedirect Router
+ * Product Sku Router
  */
 class Router implements RouterInterface
 {
     /**
-     * Object Manager instance
+     * Object Manager
      *
      * @var \Magento\Framework\ObjectManagerInterface
      */
     protected $_objectManager;
 	
     /**
+     * Action Factory
+     *
      * @var \Magento\Framework\App\ActionFactory
      */
     protected $_actionFactory;
 	
     /**
-     * Response
+     * Response Interface
      *
      * @var \Magento\Framework\App\ResponseInterface
      */
     protected $_response;
 	
     /**
-     * @param \Magento\Framework\App\ActionFactory $actionFactory
-     * @param \Magento\Framework\App\ResponseInterface $response
-	 * @param \Magento\Framework\ObjectManagerInterface $objectManager 
+     * Initialize Router
      *
-     * @SuppressWarnings(PHPMD.ExcessiveParameterList)	 
+     * @param ActionFactory $actionFactory
+     * @param ResponseInterface $response
+	 * @param ObjectManagerInterface $objectManager 	 
      */
     public function __construct(
         ActionFactory $actionFactory,
@@ -54,9 +56,9 @@ class Router implements RouterInterface
     }
 	
     /**
-     * Validate and Match
+     * Validate And Match
      *
-     * @param \Magento\Framework\App\RequestInterface $request
+     * @param RequestInterface $request
      * @return bool
      */
     public function match(RequestInterface $request)
