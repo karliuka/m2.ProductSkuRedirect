@@ -1,7 +1,7 @@
 <?php
 /**
  * Copyright © 2011-2018 Karliuka Vitalii(karliuka.vitalii@gmail.com)
- * 
+ *
  * See COPYING.txt for license details.
  */
 namespace Faonni\ProductSkuRedirect\Controller;
@@ -18,43 +18,37 @@ use Magento\Catalog\Model\ProductFactory;
 class Router implements RouterInterface
 {
     /**
-     * Product Factory
-     *
      * @var \Magento\Catalog\Model\ProductFactory
-     */	
-	protected $_productFactory;
-	
+     */
+    protected $_productFactory;
+
     /**
-     * Action Factory
-     *
      * @var \Magento\Framework\App\ActionFactory
      */
     protected $_actionFactory;
-	
+
     /**
-     * Response
-     *
      * @var \Magento\Framework\App\ResponseInterface
      */
     protected $_response;
-	
+
     /**
      * Initialize Router
      *
      * @param ActionFactory $actionFactory
      * @param ResponseInterface $response
-	 * @param ProductFactory $productFactory 	 
+     * @param ProductFactory $productFactory
      */
     public function __construct(
         ActionFactory $actionFactory,
         ResponseInterface $response,
-		ProductFactory $productFactory
+        ProductFactory $productFactory
     ) {
         $this->_actionFactory = $actionFactory;
         $this->_response = $response;
-		$this->_productFactory = $productFactory;
+        $this->_productFactory = $productFactory;
     }
-	
+
     /**
      * Validate And Match
      *
@@ -64,30 +58,30 @@ class Router implements RouterInterface
     public function match(RequestInterface $request)
     {
         $identifier = trim($request->getPathInfo(), '/');
-		$productId = $this->_getIdBySku($identifier);
-		if ($productId) {
-			$this->_setRequestParam($request, $productId);
-			return $this->_getActionForward($request);				
-		}		
-		return false;
+        $productId = $this->_getIdBySku($identifier);
+        if ($productId) {
+            $this->_setRequestParam($request, $productId);
+            return $this->_getActionForward($request);
+        }
+        return false;
     }
-	
+
     /**
      * Initialize Request Param
      *
      * @param RequestInterface $request
-     * @param integer $productId	 
+     * @param integer $productId
      * @return void
      */
     protected function _setRequestParam($request, $productId)
     {
-		$request
-			->setModuleName('catalog')
-			->setControllerName('product')
-			->setActionName('view')
-			->setParam('id', $productId);
+        $request
+            ->setModuleName('catalog')
+            ->setControllerName('product')
+            ->setActionName('view')
+            ->setParam('id', $productId);
     }
-	
+
     /**
      * Retrieve Action Forward
      *
@@ -101,7 +95,7 @@ class Router implements RouterInterface
             ['request' => $request]
         );
     }
-	
+
     /**
      * Retrieve Product Id By Sku
      *
@@ -111,6 +105,6 @@ class Router implements RouterInterface
     protected function _getIdBySku($sku)
     {
         return $this->_productFactory->create()
-			->getIdBySku($sku);
-    }	
+            ->getIdBySku($sku);
+    }
 }
