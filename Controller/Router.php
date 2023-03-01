@@ -6,9 +6,10 @@
  */
 namespace Faonni\ProductSkuRedirect\Controller;
 
+use Magento\Framework\App\ActionInterface;
 use Magento\Framework\App\RouterInterface;
 use Magento\Framework\App\ActionFactory;
-use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\App\Action\Forward;
 use Magento\Framework\App\RequestInterface;
 use Magento\Catalog\Model\ProductFactory;
 
@@ -18,62 +19,55 @@ use Magento\Catalog\Model\ProductFactory;
 class Router implements RouterInterface
 {
     /**
-     * @var \Magento\Catalog\Model\ProductFactory
+     * @var ProductFactory
      */
-    protected $_productFactory;
+    private $productFactory;
 
     /**
-     * @var \Magento\Framework\App\ActionFactory
+     * @var ActionFactory
      */
-    protected $_actionFactory;
+    private $actionFactory;
 
     /**
-     * @var \Magento\Framework\App\ResponseInterface
-     */
-    protected $_response;
-
-    /**
-     * Initialize Router
+     * Initialize router
      *
      * @param ActionFactory $actionFactory
-     * @param ResponseInterface $response
      * @param ProductFactory $productFactory
      */
     public function __construct(
         ActionFactory $actionFactory,
-        ResponseInterface $response,
         ProductFactory $productFactory
     ) {
-        $this->_actionFactory = $actionFactory;
-        $this->_response = $response;
-        $this->_productFactory = $productFactory;
+        $this->actionFactory = $actionFactory;
+        $this->productFactory = $productFactory;
     }
 
     /**
-     * Validate And Match
+     * Validate and match
      *
      * @param RequestInterface $request
-     * @return bool
+     * @return ActionInterface|null
      */
     public function match(RequestInterface $request)
     {
         $identifier = trim($request->getPathInfo(), '/');
-        $productId = $this->_getIdBySku($identifier);
+        $productId = $this->getIdBySku($identifier);
         if ($productId) {
-            $this->_setRequestParam($request, $productId);
-            return $this->_getActionForward($request);
+            $this->setRequestParam($request, $productId);
+            return $this->getActionForward($request);
         }
-        return false;
+
+        return null;
     }
 
     /**
-     * Initialize Request Param
+     * Initialize request param
      *
      * @param RequestInterface $request
      * @param integer $productId
      * @return void
      */
-    protected function _setRequestParam($request, $productId)
+    private function setRequestParam($request, $productId)
     {
         $request
             ->setModuleName('catalog')
@@ -83,28 +77,29 @@ class Router implements RouterInterface
     }
 
     /**
-     * Retrieve Action Forward
+     * Retrieve action forward
      *
      * @param RequestInterface $request
-     * @return \Magento\Framework\App\Action\Forward
+     * @return ActionInterface
      */
-    protected function _getActionForward($request)
+    private function getActionForward($request)
     {
-        return $this->_actionFactory->create(
-            'Magento\Framework\App\Action\Forward',
-            ['request' => $request]
-        );
+        /** @var Forward $action */
+        $action = $this->actionFactory->create(Forward::class);
+        $action->dispatch($request);
+
+        return $action;
     }
 
     /**
-     * Retrieve Product Id By Sku
+     * Retrieve product id by sku
      *
      * @param string $sku
      * @return integer
      */
-    protected function _getIdBySku($sku)
+    private function getIdBySku($sku)
     {
-        return $this->_productFactory->create()
+        return $this->productFactory->create()
             ->getIdBySku($sku);
     }
 }
