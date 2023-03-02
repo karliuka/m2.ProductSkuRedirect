@@ -17,4 +17,3 @@ Extension redirects a exact matches for sku to the corresponding product.
     ```bash
 	php bin/magento setup:upgrade
 	php bin/magento setup:static-content:deploy
-
