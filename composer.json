@@ -2,7 +2,7 @@
     "name": "faonni/module-product-sku-redirect",
     "description": "Extension redirects a exact matches for sku to the corresponding product.",
     "type": "magento2-module",
-    "version": "2.0.3",
+    "version": "2.4.0",
     "authors": [
         {
             "name": "Karliuka Vitalii",
@@ -13,7 +13,7 @@
         "OSL-3.0"
     ],
     "require": {
-        "magento/module-catalog": "100.0.*|101.0.*|102.0.*"
+        "magento/module-catalog": "104.0.*"
     },
     "autoload": {
         "files": [
